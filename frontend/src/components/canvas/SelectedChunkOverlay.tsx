@@ -14,7 +14,6 @@ const SelectedChunkOverlay = ({
 }: SelectedChunkOverlayProps) => {
   const [chunkX, chunkY] = chunkId.split(":").map(Number);
   const scale = useTransformComponent(({ state }) => state.scale);
-  const arrowSize = 40 / scale;
   const cornerLength = Math.min(24 / scale, chunkPixelSize / 4);
   const outlineWidth = 3 / scale;
   const outlinePath = [
@@ -49,17 +48,19 @@ const SelectedChunkOverlay = ({
           strokeWidth={outlineWidth}
         />
       </svg>
-      <Navigation2
-        aria-hidden="true"
-        className="absolute z-40 fill-white text-game-chunkselected"
-        viewBox="-1 -1 26 26"
+      <div
+        className="absolute top-full left-1/2 z-40 size-[40px]"
         style={{
-          top: chunkPixelSize,
-          left: (chunkPixelSize - arrowSize) / 2,
-          width: arrowSize,
-          height: arrowSize,
+          transform: `translateX(-50%) scale(${1 / scale})`,
+          transformOrigin: "top center",
         }}
-      />
+      >
+        <Navigation2
+          aria-hidden="true"
+          className="size-full fill-white text-game-chunkselected"
+          viewBox="-1 -1 26 26"
+        />
+      </div>
     </div>
   );
 };
