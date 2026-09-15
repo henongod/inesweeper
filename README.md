@@ -39,7 +39,7 @@ A Collection of Interesting Minesweeper Variants.
       <td><a href="https://nerdsweeper.com/">Nerd(Color)sweeper</a></td>
     </tr>
     <tr>
-      <td rowspan="6">Number scheme</td>
+      <td rowspan="7">Number scheme</td>
       <td><strong>Liar</strong></td>
       <td>Numbers "lie" by displaying numbers one off from the actual value</td>
       <td><a href="https://store.steampowered.com/app/1865060/14_Minesweeper_Variants/">14MV[L]</a></td>
@@ -70,7 +70,6 @@ A Collection of Interesting Minesweeper Variants.
       <td>Original</td>
     </tr>
     <tr>
-      <td>Number scheme</td>
       <td><strong>Nearest-2</strong></td>
       <td>The numbers indicate the distance to the second nearest mine</td>
       <td><a href="https://nerdsweeper.com/">Nerd(Distance)sweeper</a></td>
