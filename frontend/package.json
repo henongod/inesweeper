@@ -3,15 +3,15 @@
   "type": "module",
   "version": "1.0.0",
   "description": "Web Application for Minesweeper Variants",
-  "homepage": "https://github.com/osutaiko/inesweeper#readme",
+  "homepage": "https://github.com/henongod/inesweeper#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/osutaiko/inesweeper.git"
+    "url": "git+https://github.com/henongod/inesweeper.git"
   },
   "author": "Dongheon Han <henongod@kaist.ac.kr>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/osutaiko/inesweeper/issues"
+    "url": "https://github.com/henongod/inesweeper/issues"
   },
   "keywords": [
     "react",

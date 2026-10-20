@@ -115,7 +115,7 @@ const InfoButton = () => (
             Privacy Policy
           </Button>
         </Link>
-        <a href="https://github.com/osutaiko/inesweeper" target="_blank" rel="noopener noreferrer">
+        <a href="https://github.com/henongod/inesweeper" target="_blank" rel="noopener noreferrer">
           <svg role="img" viewBox="0 0 24 24" className="size-6 fill-current">
             <title>GitHub</title>
             <path d={siGithub.path} />
