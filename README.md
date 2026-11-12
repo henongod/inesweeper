@@ -105,6 +105,19 @@ The multiplayer shared-board mode.
 - Public infinite board divided by 16x16 chunks
 - Claim a chunk by locking it and successfully solving
 
+#### Generation
+Each 16×16 chunk is generated deterministically from its coordinates. For chunk ((c_x,c_y)), a 96-bit nonce is constructed as
+
+$$
+N(c_x,c_y)=\operatorname{BE32}(1)\Vert\operatorname{BE32}(c_x)\Vert\operatorname{BE32}(c_y)
+$$
+
+With ChaCha20 we determine for each cell whether it has a mine with thresholding:
+$$
+R_{c_x,c_y}=\operatorname{ChaCha20}_{K,N(c_x,c_y)}(0^{2048})
+M(16c_x+u,16c_y+v)=\mathbf{1}[R_{c_x,c_y}[16v+u]<40]
+$$
+
 ## Philosophy
 All variants featured in this site must have the exact same gameplay loop as Classic Minesweeper. Uncover all safe cells without stepping on a mine, numbers on a cell represent the mines around them in some way, and mines are randomly generated (unless I decide to add NG mode somehow). I don't want to add any game-breaking rulesets that doesn't feel like the original.
 
