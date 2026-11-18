@@ -7,6 +7,7 @@ import { ScrollArea, ScrollBar } from "../ui/shadcn/scroll-area";
 import { Toaster } from "../ui/shadcn/sonner";
 import { loadCurrentAuthUser } from "@/lib/auth";
 import { useMediaQuery } from "@/lib/utils";
+import { LAST_ATTEMPTED_CHUNK_KEY } from "@/lib/canvas/coordinates";
 import {
   getActiveCanvasLock,
   getCanvasChunkArea,
@@ -52,6 +53,14 @@ const CanvasSolvePage = () => {
 
         if (isActive) {
           setSolverData({ chunk, chunkArea });
+          try {
+            localStorage.setItem(
+              LAST_ATTEMPTED_CHUNK_KEY,
+              `${chunk.chunkX}:${chunk.chunkY}`,
+            );
+          } catch {
+            return;
+          }
         }
       } catch {
         if (isActive) {

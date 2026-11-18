@@ -14,7 +14,10 @@ import {
 } from "react-zoom-pan-pinch";
 
 import { CHUNK_ORIGIN_OFFSET, CHUNK_PIXEL_SIZE, CanvasViewport } from "./CanvasViewport";
-import { formatChunkCoordinates } from "@/lib/canvas/coordinates";
+import {
+  formatChunkCoordinates,
+  LAST_ATTEMPTED_CHUNK_KEY,
+} from "@/lib/canvas/coordinates";
 import { formatChunkShareText } from "@/lib/canvas/share";
 import { loadCurrentAuthUser, type AuthUser } from "@/lib/auth";
 import {
@@ -43,6 +46,21 @@ type ChunkAreaBounds = [number, number, number, number];
 
 const getChunkAreaSize = ([fromX, fromY, toX, toY]: ChunkAreaBounds) =>
   (toX - fromX + 1) * (toY - fromY + 1);
+
+const getLastAttemptedChunk = () => {
+  try {
+    const storedChunk = localStorage.getItem(LAST_ATTEMPTED_CHUNK_KEY);
+    if (storedChunk && /^-?\d+:-?\d+$/.test(storedChunk)) {
+      const [chunkX, chunkY] = storedChunk.split(":").map(Number);
+      if (Number.isSafeInteger(chunkX) && Number.isSafeInteger(chunkY)) {
+        return { chunkX, chunkY };
+      }
+    }
+  } catch {
+    return null;
+  }
+  return null;
+};
 
 const getSelectedChunkId = (searchParams: URLSearchParams) => {
   const chunkX = searchParams.get("X");
@@ -632,9 +650,21 @@ const CanvasPage = () => {
                 locateChunk(chunkX, chunkY, ref, 0);
                 initialSelectedChunkId.current = null;
               } else {
-                ref.centerView(INITIAL_SCALE, 0);
-                if (gridRef.current) {
-                  updateChunkGrid(gridRef.current, state);
+                const grid = gridRef.current;
+                const lastAttemptedChunk = getLastAttemptedChunk();
+                if (grid && lastAttemptedChunk) {
+                  const { chunkX, chunkY } = lastAttemptedChunk;
+                  ref.setTransform(
+                    grid.clientWidth / 2 - chunkX * CHUNK_PIXEL_SIZE * INITIAL_SCALE,
+                    grid.clientHeight / 2 + chunkY * CHUNK_PIXEL_SIZE * INITIAL_SCALE,
+                    INITIAL_SCALE,
+                    0,
+                  );
+                } else {
+                  ref.centerView(INITIAL_SCALE, 0);
+                }
+                if (grid) {
+                  updateChunkGrid(grid, state);
                 }
                 updateChunkAreaBounds(state);
               }

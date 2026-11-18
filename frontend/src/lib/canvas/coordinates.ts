@@ -1,4 +1,5 @@
 export const CHUNK_SIZE = 16;
+export const LAST_ATTEMPTED_CHUNK_KEY = "place:lastAttemptedChunk";
 
 export const formatChunkCoordinates = (chunkX: number, chunkY: number) =>
   `(X=${chunkX}, Y=${chunkY})`;
