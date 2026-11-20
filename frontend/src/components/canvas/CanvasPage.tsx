@@ -31,6 +31,7 @@ import {
 import { getMsParts, timeLeftUntil } from "@/lib/utils";
 
 const INITIAL_SCALE = 0.2;
+const MIN_SCALE = 0.025;
 const QUERY_CHUNK_SCALE = 0.6;
 const GRID_DETAIL_SCALE = 0.1;
 const LOW_SCALE_GRID_STEP = 10;
@@ -146,7 +147,7 @@ const CanvasPage = () => {
       return;
     }
 
-    const clampedScale = Math.max(state.scale, 0.075)
+    const clampedScale = Math.max(state.scale, MIN_SCALE);
     const left = -state.positionX / clampedScale;
     const right = (gridRef.current.clientWidth - state.positionX) / clampedScale;
     const top = -state.positionY / clampedScale;
@@ -635,7 +636,7 @@ const CanvasPage = () => {
           <TransformWrapper
             ref={transformRef}
             initialScale={INITIAL_SCALE}
-            minScale={0.075}
+            minScale={MIN_SCALE}
             maxScale={1.0}
             centerOnInit={false}
             centerZoomedOut={false}
@@ -670,7 +671,13 @@ const CanvasPage = () => {
               }
             }}
             onTransform={(_, transform) => {
-              setTransformScale(transform.scale);
+              const pixelRatio = window.devicePixelRatio || 1;
+              const resolution = (scale: number) => Math.min(
+                2, Math.max(0.25, Math.ceil(pixelRatio * scale * 4) / 4),
+              );
+              setTransformScale(current =>
+                resolution(current) === resolution(transform.scale) ? current : transform.scale,
+              );
               if (gridRef.current) {
                 updateChunkGrid(gridRef.current, transform);
               }

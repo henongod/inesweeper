@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Square } from "lucide-react";
 
 import CanvasChunk from "./CanvasChunk";
@@ -22,12 +23,16 @@ export const CanvasViewport = ({
   transformScale,
   onChunkClick,
 }: CanvasViewportProps) => {
-  const chunkByCoord = new Map(
+  const nonOpenChunks = useMemo(
+    () => (chunkArea?.chunks ?? []).filter(chunk => chunk.state !== "open"),
+    [chunkArea],
+  );
+  const chunkByCoord = useMemo(() => new Map(
     (chunkArea?.chunks ?? []).map((chunk) => [
       `${chunk.chunkX}:${chunk.chunkY}`,
       chunk,
     ]),
-  );
+  ), [chunkArea]);
 
   const hasSolvedNeighbor = (chunkX: number, chunkY: number) => {
     return (
@@ -39,7 +44,7 @@ export const CanvasViewport = ({
   };
   const claimableChunkIds = new Set<string>();
 
-  for (const chunk of chunkArea?.chunks ?? []) {
+  for (const chunk of nonOpenChunks) {
     if (chunk.state !== "solved") {
       continue;
     }
@@ -71,7 +76,7 @@ export const CanvasViewport = ({
 
   return (
     <div className="relative size-px">
-      {(chunkArea?.chunks ?? []).map((chunk) => (
+      {nonOpenChunks.map((chunk) => (
         <div
           key={`${chunk.chunkX}:${chunk.chunkY}`}
           id={`chunk-${chunk.chunkX}:${chunk.chunkY}`}

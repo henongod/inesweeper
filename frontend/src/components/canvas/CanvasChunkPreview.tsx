@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 
 import {
   CHUNK_EDGE_INDEX_BY_LOCAL,
@@ -14,7 +14,7 @@ const CHUNK_PIXEL_SIZE = CHUNK_SIZE * CELL_SIZE;
 const getNumberColorProperty = (num: number) =>
   `--game-number-${num % 8 === 0 ? 8 : num % 8}`;
 
-export const CanvasChunkPreview = ({
+export const CanvasChunkPreview = memo(function CanvasChunkPreview({
   chunkX,
   chunkY,
   mineBitmap,
@@ -23,7 +23,7 @@ export const CanvasChunkPreview = ({
 }: Pick<
   CanvasChunkProps,
   "chunkX" | "chunkY" | "mineBitmap" | "edgeNibbleMap" | "transformScale"
->) => {
+>) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const resolution = Math.min(
     2,
@@ -164,4 +164,4 @@ export const CanvasChunkPreview = ({
       className="absolute inset-0 z-10 size-full"
     />
   );
-};
+});
