@@ -14,13 +14,15 @@ const SelectedChunkOverlay = ({
 }: SelectedChunkOverlayProps) => {
   const [chunkX, chunkY] = chunkId.split(":").map(Number);
   const scale = useTransformComponent(({ state }) => state.scale);
-  const cornerLength = Math.min(24 / scale, chunkPixelSize / 4);
+  const inset = Math.min(2 / scale, chunkPixelSize / 4);
+  const end = chunkPixelSize - inset + 1 / scale; // TODO: ugly!!!
+  const cornerLength = Math.min(24 / scale, (end - inset) / 4);
   const outlineWidth = 3 / scale;
   const outlinePath = [
-    `M ${cornerLength} 0 H 0 V ${cornerLength}`,
-    `M ${chunkPixelSize - cornerLength} 0 H ${chunkPixelSize} V ${cornerLength}`,
-    `M 0 ${chunkPixelSize - cornerLength} V ${chunkPixelSize} H ${cornerLength}`,
-    `M ${chunkPixelSize - cornerLength} ${chunkPixelSize} H ${chunkPixelSize} V ${chunkPixelSize - cornerLength}`,
+    `M ${inset + cornerLength} ${inset} H ${inset} V ${inset + cornerLength}`,
+    `M ${end - cornerLength} ${inset} H ${end} V ${inset + cornerLength}`,
+    `M ${inset} ${end - cornerLength} V ${end} H ${inset + cornerLength}`,
+    `M ${end - cornerLength} ${end} H ${end} V ${end - cornerLength}`,
   ].join(" ");
 
   return (
