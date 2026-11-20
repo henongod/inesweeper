@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type WheelEvent as ReactWheelEvent } from "react";
+import { useEffect, useRef, useState, type TouchEvent, type WheelEvent as ReactWheelEvent } from "react";
 import { House, Minus, Plus, ScanSquare, Share2 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -114,6 +114,7 @@ const CanvasPage = () => {
   const [showMySolvedOnly, setShowMySolvedOnly] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
   const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
+  const pinchNeedsRefresh = useRef(false);
   const gestureRef = useRef({
     startX: 0,
     startY: 0,
@@ -203,6 +204,14 @@ const CanvasPage = () => {
         ? contextBounds
         : bounds;
     });
+  };
+
+  const refreshAfterPinch = (event: TouchEvent<HTMLDivElement>) => {
+    if (!pinchNeedsRefresh.current || event.touches.length > 0) return;
+
+    pinchNeedsRefresh.current = false;
+    const state = transformRef.current?.state;
+    if (state) updateChunkAreaBounds(state);
   };
 
   const setWheelStep = ({ deltaMode, deltaY, ctrlKey }: ReactWheelEvent<HTMLDivElement>) => {
@@ -692,6 +701,7 @@ const CanvasPage = () => {
               }
             }}
             onPanningStop={({ state }) => updateChunkAreaBounds(state)}
+            onPinchStart={() => { pinchNeedsRefresh.current = true; }}
             onZoomStop={({ state }) => updateChunkAreaBounds(state)}
             onWheel={() => {
               if (selectedChunkId !== null) updateSelectedChunk(null);
@@ -757,6 +767,8 @@ const CanvasPage = () => {
                   onPointerCancel: () => {
                     gestureRef.current.dragged = false;
                   },
+                  onTouchEnd: refreshAfterPinch,
+                  onTouchCancel: refreshAfterPinch,
                   onWheelCapture: setWheelStep,
                 }}
               >
