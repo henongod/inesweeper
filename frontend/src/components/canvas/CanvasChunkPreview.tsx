@@ -36,7 +36,7 @@ export const CanvasChunkPreview = memo(function CanvasChunkPreview({
       return;
     }
 
-    const context = canvas.getContext("2d", { alpha: false, willReadFrequently: true });
+    const context = canvas.getContext("2d", { alpha: false });
     if (!context) {
       return;
     }
@@ -146,7 +146,9 @@ export const CanvasChunkPreview = memo(function CanvasChunkPreview({
     };
 
     draw();
-    void document.fonts.load("18px MineSweeper").then(draw);
+    if (!document.fonts.check("18px MineSweeper")) {
+      void document.fonts.load("18px MineSweeper").then(draw);
+    }
 
     const themeObserver = new MutationObserver(draw);
     themeObserver.observe(document.documentElement, {
