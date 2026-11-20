@@ -31,7 +31,7 @@ const CanvasChunk = ({
   const backgroundClassName = renderDetails
     ? colorClassName
     : state === "solved"
-      ? "bg-game-revealed"
+      ? "bg-[var(--game-chunksolved)]"
       : state === "locked"
         ? "bg-game-chunklocked"
         : "";
