@@ -14,6 +14,7 @@ import {
 } from "react-zoom-pan-pinch";
 
 import { CHUNK_ORIGIN_OFFSET, CHUNK_PIXEL_SIZE, CanvasViewport } from "./CanvasViewport";
+import { CanvasChunkPreviews } from "./CanvasChunkPreviews";
 import {
   formatChunkCoordinates,
   LAST_ATTEMPTED_CHUNK_KEY,
@@ -109,8 +110,6 @@ const CanvasPage = () => {
   const [activeLockRemainingMs, setActiveLockRemainingMs] = useState(0);
   const [lockingChunkId, setLockingChunkId] = useState<string | null>(null);
   const [showMySolvedOnly, setShowMySolvedOnly] = useState(false);
-  const [transformScale, setTransformScale] = useState(INITIAL_SCALE);
-  const zoomRenderTimer = useRef<ReturnType<typeof setTimeout>>();
   const gridRef = useRef<HTMLDivElement>(null);
   const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
   const gestureRef = useRef({
@@ -122,8 +121,6 @@ const CanvasPage = () => {
     useState<ChunkAreaBounds | null>(null);
   const selectedChunkId = getSelectedChunkId(searchParams);
   const initialSelectedChunkId = useRef(selectedChunkId);
-
-  useEffect(() => () => clearTimeout(zoomRenderTimer.current), []);
 
   const updateSelectedChunk = (chunkId: string | null) => {
     setSelectedChunk(null);
@@ -674,16 +671,6 @@ const CanvasPage = () => {
               }
             }}
             onTransform={(_, transform) => {
-              const pixelRatio = window.devicePixelRatio || 1;
-              const resolution = (scale: number) => Math.min(
-                2, Math.max(0.25, Math.ceil(pixelRatio * scale * 4) / 4),
-              );
-              clearTimeout(zoomRenderTimer.current);
-              zoomRenderTimer.current = setTimeout(() => {
-                setTransformScale(current =>
-                  resolution(current) === resolution(transform.scale) ? current : transform.scale,
-                );
-              }, 150);
               if (gridRef.current) {
                 updateChunkGrid(gridRef.current, transform);
               }
@@ -691,7 +678,7 @@ const CanvasPage = () => {
             onPanningStop={({ state }) => updateChunkAreaBounds(state)}
             onZoomStop={({ state }) => updateChunkAreaBounds(state)}
           >
-            {() => (
+              <CanvasChunkPreviews chunkArea={chunkArea} showMySolvedOnly={showMySolvedOnly} />
               <TransformComponent
                 wrapperClass="bg-transparent"
                 wrapperStyle={{
@@ -760,7 +747,6 @@ const CanvasPage = () => {
                   chunkArea={chunkArea}
                   selectedChunkId={selectedChunkId}
                   showMySolvedOnly={showMySolvedOnly}
-                  transformScale={transformScale}
                   onChunkClick={(chunkId) => {
                     if (gestureRef.current.dragged) {
                       gestureRef.current.dragged = false;
@@ -771,7 +757,6 @@ const CanvasPage = () => {
                   }}
                 />
               </TransformComponent>
-            )}
           </TransformWrapper>
       </main>
     </>

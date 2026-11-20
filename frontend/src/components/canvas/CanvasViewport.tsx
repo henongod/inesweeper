@@ -12,7 +12,6 @@ type CanvasViewportProps = {
   chunkArea: CanvasChunkAreaResponse | null;
   selectedChunkId: string | null;
   showMySolvedOnly: boolean;
-  transformScale: number;
   onChunkClick: (chunkId: string) => void;
 };
 
@@ -20,7 +19,6 @@ export const CanvasViewport = ({
   chunkArea,
   selectedChunkId,
   showMySolvedOnly,
-  transformScale,
   onChunkClick,
 }: CanvasViewportProps) => {
   const nonOpenChunks = useMemo(
@@ -93,20 +91,13 @@ export const CanvasViewport = ({
           }}
         >
           <CanvasChunk
-            chunkX={chunk.chunkX}
-            chunkY={chunk.chunkY}
             state={chunk.state}
             colorClassName={
-              chunk.state === "solved"
-                ? "bg-game-border"
-                : chunk.state === "locked" &&
-                    hasSolvedNeighbor(chunk.chunkX, chunk.chunkY)
-                  ? "bg-game-chunklocked"
-                  : ""
+              chunk.state === "locked" && hasSolvedNeighbor(chunk.chunkX, chunk.chunkY)
+                ? "bg-game-chunklocked"
+                : ""
             }
-            mineBitmap={chunk.mineBitmap}
-            edgeNibbleMap={chunk.edgeNibbleMap}
-            transformScale={transformScale}
+            hasMineBitmap={chunk.mineBitmap !== null}
             onClick={() => onChunkClick(`${chunk.chunkX}:${chunk.chunkY}`)}
           />
         </div>
