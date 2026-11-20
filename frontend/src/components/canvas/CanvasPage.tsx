@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type WheelEvent as ReactWheelEvent } from "react";
 import { House, Minus, Plus, ScanSquare, Share2 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -33,6 +33,8 @@ import { getMsParts, timeLeftUntil } from "@/lib/utils";
 
 const INITIAL_SCALE = 0.2;
 const MIN_SCALE = 0.025;
+const MAX_SCALE = 1;
+const BUTTON_ZOOM_STEP = Math.LN2 / 2;
 const QUERY_CHUNK_SCALE = 0.6;
 const GRID_DETAIL_SCALE = 0.1;
 const LOW_SCALE_GRID_STEP = 10;
@@ -203,6 +205,20 @@ const CanvasPage = () => {
     });
   };
 
+  const setWheelStep = ({ deltaMode, deltaY, ctrlKey }: ReactWheelEvent<HTMLDivElement>) => {
+    const transform = transformRef.current;
+    if (!transform || !deltaY) return;
+
+    const step = deltaMode === WheelEvent.DOM_DELTA_LINE ? 0.05
+      : deltaMode === WheelEvent.DOM_DELTA_PAGE ? 1 : 0.002;
+    const { scale } = transform.state;
+    const zoomDelta = -deltaY * step * (ctrlKey ? 10 : 1);
+    const nextScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale * 2 ** zoomDelta));
+
+    // With smooth enabled RZPP applies additive change -deltaY * wheel.step
+    transform.instance.setup.wheel.step = (nextScale - scale) / -deltaY;
+  };
+
   const returnToDefaultView = () => {
     transformRef.current?.centerView(INITIAL_SCALE, 500, "easeOut");
     window.setTimeout(() => {
@@ -214,11 +230,11 @@ const CanvasPage = () => {
   };
 
   const zoomIn = () => {
-    transformRef.current?.zoomIn(0.15, 150, "easeOut");
+    transformRef.current?.zoomIn(BUTTON_ZOOM_STEP, 150, "easeOut");
   };
 
   const zoomOut = () => {
-    transformRef.current?.zoomOut(0.15, 150, "easeOut");
+    transformRef.current?.zoomOut(BUTTON_ZOOM_STEP, 150, "easeOut");
   };
 
   const locateChunk = (
@@ -637,12 +653,12 @@ const CanvasPage = () => {
             ref={transformRef}
             initialScale={INITIAL_SCALE}
             minScale={MIN_SCALE}
-            maxScale={1.0}
+            maxScale={MAX_SCALE}
             centerOnInit={false}
             centerZoomedOut={false}
             limitToBounds={false}
-            smooth={false}
-            wheel={{ step: 0.05 }}
+            smooth
+            wheel={{ step: 0 }}
             onInit={(ref) => {
               const { state } = ref;
               const initialChunkId = initialSelectedChunkId.current;
@@ -677,6 +693,9 @@ const CanvasPage = () => {
             }}
             onPanningStop={({ state }) => updateChunkAreaBounds(state)}
             onZoomStop={({ state }) => updateChunkAreaBounds(state)}
+            onWheel={() => {
+              if (selectedChunkId !== null) updateSelectedChunk(null);
+            }}
           >
               <CanvasChunkPreviews chunkArea={chunkArea} showMySolvedOnly={showMySolvedOnly} />
               <TransformComponent
@@ -738,9 +757,7 @@ const CanvasPage = () => {
                   onPointerCancel: () => {
                     gestureRef.current.dragged = false;
                   },
-                  onWheel: () => {
-                    updateSelectedChunk(null);
-                  },
+                  onWheelCapture: setWheelStep,
                 }}
               >
                 <CanvasViewport
